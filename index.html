@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>General Journal System</title>
+
+  <link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-wrap">
+
+  <div class="topbar">
+    <div>
+      <h1>General Journal</h1>
+      <p>Record financial transactions with precision</p>
+    </div>
+
+    <button class="btn btn-blue" onclick="addRow()">
+      <i class="ti ti-plus"></i> Add Row
+    </button>
+  </div>
+
+  <div id="page-journal" class="page active">
+
+    <div class="tbl-wrap">
+      <table class="journal">
+
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Debit Account</th>
+            <th>DR Amount</th>
+            <th>Credit Account</th>
+            <th>CR Amount</th>
+            <th>Del</th>
+          </tr>
+        </thead>
+
+        <tbody id="journal-body"></tbody>
+
+        <tfoot>
+          <tr class="totals-row">
+            <td colspan="2">Totals</td>
+            <td id="total-dr">P 0.00</td>
+            <td></td>
+            <td id="total-cr">P 0.00</td>
+            <td></td>
+          </tr>
+        </tfoot>
+
+      </table>
+    </div>
+
+    <div class="footer-bar">
+
+      <div class="footer-left">
+        <button class="btn" onclick="showPage('tb')">
+          <i class="ti ti-chart-bar"></i> Trial Balance
+        </button>
+
+        <button class="btn btn-red" onclick="clearAll()">
+          <i class="ti ti-trash"></i> Clear
+        </button>
+      </div>
+
+      <button class="btn btn-blue" onclick="saveEntries()">
+        <i class="ti ti-device-floppy"></i> Save
+      </button>
+
+    </div>
+  </div>
+
+  <div id="page-tb" class="page">
+    <div class="section-title">Trial Balance</div>
+
+    <div id="tb-content"></div>
+
+    <div class="footer-bar">
+
+      <button class="btn" onclick="showPage('journal')">
+        <i class="ti ti-arrow-left"></i> Back
+      </button>
+
+      <button class="btn btn-blue" onclick="window.print()">
+        <i class="ti ti-printer"></i> Print
+      </button>
+
+    </div>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
