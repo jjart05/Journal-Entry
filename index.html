@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>General Journal System</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>General Journal</title>
 
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
 </head>
 
 <body>
@@ -20,8 +20,9 @@
       <p>Accounting entry system</p>
     </div>
 
-    <button class="btn btn-blue" onclick="addRow()">
-      <i class="ti ti-plus"></i> Add Row
+    <button class="btn btn-primary" onclick="addRow()">
+      <i class="ti ti-plus"></i>
+      Add Row
     </button>
   </div>
 
@@ -43,9 +44,9 @@
       <tfoot>
         <tr class="totals">
           <td colspan="2">Totals</td>
-          <td id="total-dr">P 0.00</td>
+          <td id="total-dr">₱ 0.00</td>
           <td></td>
-          <td id="total-cr">P 0.00</td>
+          <td id="total-cr">₱ 0.00</td>
           <td></td>
         </tr>
       </tfoot>
@@ -53,8 +54,13 @@
   </div>
 
   <div class="footer">
-    <button class="btn" onclick="showTB()">Trial Balance</button>
-    <button class="btn btn-blue" onclick="saveEntries()">Save</button>
+    <button class="btn btn-secondary" onclick="showTB()">
+      Trial Balance
+    </button>
+
+    <button class="btn btn-primary" onclick="saveEntries()">
+      Save
+    </button>
   </div>
 
 </div>
@@ -68,10 +74,14 @@
       <p>Summary of accounts</p>
     </div>
 
-    <button class="btn" onclick="showJournal()">Back</button>
+    <button class="btn btn-secondary" onclick="showJournal()">
+      Back
+    </button>
   </div>
 
-  <div id="tb-content" style="padding:15px;"></div>
+  <div class="tbl-wrap">
+    <div id="tb-content" style="padding:20px;"></div>
+  </div>
 
 </div>
 

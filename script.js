@@ -1,6 +1,12 @@
 const ACCOUNTS = [
-  "Cash","Accounts Receivable","Office Supplies","Computer Equipment",
-  "Accounts Payable","Service Revenue","Expenses","Capital"
+  "Cash",
+  "Accounts Receivable",
+  "Office Supplies",
+  "Computer Equipment",
+  "Accounts Payable",
+  "Service Revenue",
+  "Expenses",
+  "Capital"
 ];
 
 let rows = [];
@@ -8,7 +14,7 @@ let nextId = 1;
 
 /* FORMAT */
 function fmt(n){
-  return "P " + Number(n).toLocaleString("en-PH",{
+  return "₱ " + Number(n).toLocaleString("en-PH",{
     minimumFractionDigits:2,
     maximumFractionDigits:2
   });
@@ -32,44 +38,47 @@ function removeRow(id){
   render();
 }
 
-/* UPDATE + SYNC */
+/* UPDATE */
 function updateField(id, field, val){
-  const r = rows.find(x => x.id === id);
-  if(!r) return;
+  const row = rows.find(r => r.id === id);
+  if(!row) return;
 
-  r[field] = val;
+  row[field] = val;
 
-  /* DR → CR SYNC */
   if(field === "drAmt"){
     const cr = document.getElementById("cr-"+id);
     const num = parseFloat(val);
 
-    if(cr){
-      cr.value = (!isNaN(num) && num > 0)
-        ? num.toFixed(2)
-        : "";
-    }
+    cr.value = (!isNaN(num) && num > 0)
+      ? num.toFixed(2)
+      : "";
   }
 
   updateTotals();
 }
 
-/* OPTIONS */
+/* SELECT OPTIONS */
 function options(selected){
   return `
     <option value="">Select...</option>
-    ${ACCOUNTS.map(a =>
-      `<option value="${a}" ${a===selected?'selected':''}>${a}</option>`
-    ).join("")}
+
+    ${ACCOUNTS.map(acc => `
+      <option value="${acc}"
+        ${selected === acc ? "selected" : ""}>
+        ${acc}
+      </option>
+    `).join("")}
   `;
 }
 
-/* RENDER */
+/* RENDER TABLE */
 function render(){
+
   document.getElementById("journal-body").innerHTML =
   rows.map((r,i)=>`
 
     <tr>
+
       <td>${i+1}</td>
 
       <td>
@@ -79,9 +88,11 @@ function render(){
       </td>
 
       <td>
-        <input type="number"
+        <input
+          type="number"
           value="${r.drAmt}"
-          oninput="updateField(${r.id},'drAmt',this.value)">
+          oninput="updateField(${r.id},'drAmt',this.value)"
+        >
       </td>
 
       <td>
@@ -91,14 +102,21 @@ function render(){
       </td>
 
       <td>
-        <input id="cr-${r.id}" class="cr-mirror"
+        <input
+          id="cr-${r.id}"
+          class="cr-mirror"
           value="${r.drAmt ? parseFloat(r.drAmt).toFixed(2) : ""}"
-          readonly>
+          readonly
+        >
       </td>
 
       <td>
-        <button class="del-btn" onclick="removeRow(${r.id})">✕</button>
+        <button class="del-btn"
+          onclick="removeRow(${r.id})">
+          ✕
+        </button>
       </td>
+
     </tr>
 
   `).join("");
@@ -108,6 +126,7 @@ function render(){
 
 /* TOTALS */
 function updateTotals(){
+
   let total = 0;
 
   rows.forEach(r=>{
@@ -120,13 +139,14 @@ function updateTotals(){
 
 /* SAVE */
 function saveEntries(){
-  alert("Saved " + rows.length + " entries");
+  alert("Saved successfully.");
 }
 
-/* PAGE SWITCH */
+/* SWITCH PAGE */
 function showTB(){
   document.getElementById("journal-page").style.display = "none";
   document.getElementById("tb-page").style.display = "block";
+
   renderTB();
 }
 
@@ -142,14 +162,17 @@ function renderTB(){
   const credit = {};
 
   rows.forEach(r=>{
+
     const amt = parseFloat(r.drAmt) || 0;
 
     if(r.drAcc){
-      debit[r.drAcc] = (debit[r.drAcc] || 0) + amt;
+      debit[r.drAcc] =
+        (debit[r.drAcc] || 0) + amt;
     }
 
     if(r.crAcc){
-      credit[r.crAcc] = (credit[r.crAcc] || 0) + amt;
+      credit[r.crAcc] =
+        (credit[r.crAcc] || 0) + amt;
     }
   });
 
@@ -159,8 +182,10 @@ function renderTB(){
   ])];
 
   if(accounts.length === 0){
+
     document.getElementById("tb-content").innerHTML =
-      "<div>No entries yet</div>";
+      "No entries yet.";
+
     return;
   }
 
@@ -168,6 +193,7 @@ function renderTB(){
   let totalC = 0;
 
   const html = accounts.map(acc=>{
+
     const d = debit[acc] || 0;
     const c = credit[acc] || 0;
 
@@ -183,10 +209,12 @@ function renderTB(){
     `;
   }).join("");
 
-  const balanced = Math.abs(totalD - totalC) < 0.01;
+  const balanced =
+    Math.abs(totalD - totalC) < 0.01;
 
   document.getElementById("tb-content").innerHTML = `
-    <table style="width:100%; border-collapse:collapse;">
+
+    <table>
       <thead>
         <tr>
           <th>Account</th>
@@ -194,12 +222,16 @@ function renderTB(){
           <th>Credit</th>
         </tr>
       </thead>
-      <tbody>${html}</tbody>
+
+      <tbody>
+        ${html}
+      </tbody>
+
       <tfoot>
-        <tr>
-          <td><b>Total</b></td>
-          <td><b>${fmt(totalD)}</b></td>
-          <td><b>${fmt(totalC)}</b></td>
+        <tr class="totals">
+          <td>Total</td>
+          <td>${fmt(totalD)}</td>
+          <td>${fmt(totalC)}</td>
         </tr>
       </tfoot>
     </table>
@@ -211,6 +243,5 @@ function renderTB(){
 }
 
 /* INIT */
-addRow();
 addRow();
 addRow();
