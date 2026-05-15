@@ -1,200 +1,175 @@
 const ACCOUNTS = [
-  "Cash",
-  "Accounts Receivable",
-  "Office Supplies",
-  "Computer Equipment",
-  "Software Subscription",
-  "Accounts Payable",
-  "Unearned Revenue",
-  "Owner's Capital",
-  "Owner's Drawings",
-  "Service Revenue",
-  "Rent Expense",
-  "Internet Expense",
-  "Salaries Expense",
-  "Utilities Expense",
-  "Notes Payable",
-  "Prepaid Expense"
+  "Cash","Accounts Receivable","Office Supplies","Computer Equipment",
+  "Accounts Payable","Service Revenue","Expenses","Capital"
 ];
 
 let rows = [];
 let nextId = 1;
 
+/* FORMAT */
 function fmt(n){
-  return 'P ' + Number(n).toLocaleString('en-PH',{
+  return "P " + Number(n).toLocaleString("en-PH",{
     minimumFractionDigits:2,
     maximumFractionDigits:2
   });
 }
 
-function acctOptions(selected){
-  return `
-    <option value="">Select Account...</option>
-    ${ACCOUNTS.map(a =>
-      `<option value="${a}" ${a===selected?'selected':''}>${a}</option>`
-    ).join('')}
-  `;
-}
-
+/* ADD ROW */
 function addRow(){
   rows.push({
     id:nextId++,
-    drAcc:'',
-    drAmt:'',
-    crAcc:''
+    drAcc:"",
+    drAmt:"",
+    crAcc:""
   });
 
-  renderTable();
+  render();
 }
 
+/* DELETE */
 function removeRow(id){
   rows = rows.filter(r => r.id !== id);
-  renderTable();
+  render();
 }
 
-function updateField(id, field, value){
+/* UPDATE + SYNC */
+function updateField(id, field, val){
+  const r = rows.find(x => x.id === id);
+  if(!r) return;
 
-  const row = rows.find(r => r.id === id);
+  r[field] = val;
 
-  if(row){
-    row[field] = value;
+  /* DR → CR SYNC */
+  if(field === "drAmt"){
+    const cr = document.getElementById("cr-"+id);
+    const num = parseFloat(val);
+
+    if(cr){
+      cr.value = (!isNaN(num) && num > 0)
+        ? num.toFixed(2)
+        : "";
+    }
   }
 
   updateTotals();
 }
 
-function renderTable(){
+/* OPTIONS */
+function options(selected){
+  return `
+    <option value="">Select...</option>
+    ${ACCOUNTS.map(a =>
+      `<option value="${a}" ${a===selected?'selected':''}>${a}</option>`
+    ).join("")}
+  `;
+}
 
-  document.getElementById('journal-body').innerHTML =
+/* RENDER */
+function render(){
+  document.getElementById("journal-body").innerHTML =
   rows.map((r,i)=>`
 
     <tr>
-
       <td>${i+1}</td>
 
       <td>
         <select onchange="updateField(${r.id},'drAcc',this.value)">
-          ${acctOptions(r.drAcc)}
+          ${options(r.drAcc)}
         </select>
       </td>
 
       <td>
-        <input
-          type="number"
+        <input type="number"
           value="${r.drAmt}"
-          oninput="updateField(${r.id},'drAmt',this.value)"
-        >
+          oninput="updateField(${r.id},'drAmt',this.value)">
       </td>
 
       <td>
         <select onchange="updateField(${r.id},'crAcc',this.value)">
-          ${acctOptions(r.crAcc)}
+          ${options(r.crAcc)}
         </select>
       </td>
 
       <td>
-        <input
-          class="cr-mirror"
-          type="number"
-          value="${r.drAmt}"
-          readonly
-        >
+        <input id="cr-${r.id}" class="cr-mirror"
+          value="${r.drAmt ? parseFloat(r.drAmt).toFixed(2) : ""}"
+          readonly>
       </td>
 
       <td>
-        <button class="del-btn" onclick="removeRow(${r.id})">
-          X
-        </button>
+        <button class="del-btn" onclick="removeRow(${r.id})">✕</button>
       </td>
-
     </tr>
 
-  `).join('');
+  `).join("");
 
   updateTotals();
 }
 
+/* TOTALS */
 function updateTotals(){
-
   let total = 0;
 
   rows.forEach(r=>{
     total += parseFloat(r.drAmt) || 0;
   });
 
-  document.getElementById('total-dr').textContent = fmt(total);
-  document.getElementById('total-cr').textContent = fmt(total);
+  document.getElementById("total-dr").innerText = fmt(total);
+  document.getElementById("total-cr").innerText = fmt(total);
 }
 
-function clearAll(){
-
-  if(confirm('Clear all entries?')){
-    rows = [];
-    renderTable();
-  }
-
-}
-
+/* SAVE */
 function saveEntries(){
-  alert('Entries Saved!');
+  alert("Saved " + rows.length + " entries");
 }
 
-function showPage(page){
-
-  document.querySelectorAll('.page')
-  .forEach(p=>p.classList.remove('active'));
-
-  document.getElementById('page-'+page)
-  .classList.add('active');
-
-  if(page === 'tb'){
-    renderTB();
-  }
+/* PAGE SWITCH */
+function showTB(){
+  document.getElementById("journal-page").style.display = "none";
+  document.getElementById("tb-page").style.display = "block";
+  renderTB();
 }
 
+function showJournal(){
+  document.getElementById("journal-page").style.display = "block";
+  document.getElementById("tb-page").style.display = "none";
+}
+
+/* TRIAL BALANCE */
 function renderTB(){
 
-  const debitTotals = {};
-  const creditTotals = {};
+  const debit = {};
+  const credit = {};
 
   rows.forEach(r=>{
-
     const amt = parseFloat(r.drAmt) || 0;
 
     if(r.drAcc){
-      debitTotals[r.drAcc] =
-      (debitTotals[r.drAcc] || 0) + amt;
+      debit[r.drAcc] = (debit[r.drAcc] || 0) + amt;
     }
 
     if(r.crAcc){
-      creditTotals[r.crAcc] =
-      (creditTotals[r.crAcc] || 0) + amt;
+      credit[r.crAcc] = (credit[r.crAcc] || 0) + amt;
     }
-
   });
 
-  const accounts = [
-    ...new Set([
-      ...Object.keys(debitTotals),
-      ...Object.keys(creditTotals)
-    ])
-  ];
+  const accounts = [...new Set([
+    ...Object.keys(debit),
+    ...Object.keys(credit)
+  ])];
 
   if(accounts.length === 0){
-
-    document.getElementById('tb-content').innerHTML =
-    `<div class="empty-state">No entries yet.</div>`;
-
+    document.getElementById("tb-content").innerHTML =
+      "<div>No entries yet</div>";
     return;
   }
 
   let totalD = 0;
   let totalC = 0;
 
-  const rowsHTML = accounts.map(acc=>{
-
-    const d = debitTotals[acc] || 0;
-    const c = creditTotals[acc] || 0;
+  const html = accounts.map(acc=>{
+    const d = debit[acc] || 0;
+    const c = credit[acc] || 0;
 
     totalD += d;
     totalC += c;
@@ -202,16 +177,16 @@ function renderTB(){
     return `
       <tr>
         <td>${acc}</td>
-        <td>${d ? fmt(d) : '-'}</td>
-        <td>${c ? fmt(c) : '-'}</td>
+        <td>${d ? fmt(d) : "-"}</td>
+        <td>${c ? fmt(c) : "-"}</td>
       </tr>
     `;
-  }).join('');
+  }).join("");
 
-  document.getElementById('tb-content').innerHTML = `
+  const balanced = Math.abs(totalD - totalC) < 0.01;
 
-    <table>
-
+  document.getElementById("tb-content").innerHTML = `
+    <table style="width:100%; border-collapse:collapse;">
       <thead>
         <tr>
           <th>Account</th>
@@ -219,15 +194,23 @@ function renderTB(){
           <th>Credit</th>
         </tr>
       </thead>
-
-      <tbody>
-        ${rowsHTML}
-      </tbody>
-
+      <tbody>${html}</tbody>
+      <tfoot>
+        <tr>
+          <td><b>Total</b></td>
+          <td><b>${fmt(totalD)}</b></td>
+          <td><b>${fmt(totalC)}</b></td>
+        </tr>
+      </tfoot>
     </table>
 
+    <div class="badge ${balanced ? "ok":"no"}">
+      ${balanced ? "✓ Balanced" : "✗ Not Balanced"}
+    </div>
   `;
 }
 
+/* INIT */
+addRow();
 addRow();
 addRow();
