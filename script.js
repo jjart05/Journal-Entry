@@ -1,12 +1,18 @@
 const ACCOUNTS = [
   "Cash",
-  "Accounts Receivable",
-  "Office Supplies",
   "Computer Equipment",
+  "Rent Expense",
+  "Software Subscription",
+  "Internet Expense",
   "Accounts Payable",
+  "Accounts Receivable",
   "Service Revenue",
-  "Expenses",
-  "Capital"
+  "Salaries Expense",
+  "Office Supplies",
+  "Owner's Drawings",
+  "Owner's Capital",
+  "Unearned Revenue",
+  "Utilities Expense"
 ];
 
 let rows = [];
@@ -22,6 +28,7 @@ function fmt(n){
 
 /* ADD ROW */
 function addRow(){
+
   rows.push({
     id:nextId++,
     drAcc:"",
@@ -34,18 +41,21 @@ function addRow(){
 
 /* DELETE */
 function removeRow(id){
+
   rows = rows.filter(r => r.id !== id);
   render();
 }
 
 /* UPDATE */
 function updateField(id, field, val){
+
   const row = rows.find(r => r.id === id);
   if(!row) return;
 
   row[field] = val;
 
   if(field === "drAmt"){
+
     const cr = document.getElementById("cr-"+id);
     const num = parseFloat(val);
 
@@ -59,6 +69,7 @@ function updateField(id, field, val){
 
 /* SELECT OPTIONS */
 function options(selected){
+
   return `
     <option value="">Select...</option>
 
@@ -144,6 +155,7 @@ function saveEntries(){
 
 /* SWITCH PAGE */
 function showTB(){
+
   document.getElementById("journal-page").style.display = "none";
   document.getElementById("tb-page").style.display = "block";
 
@@ -151,6 +163,7 @@ function showTB(){
 }
 
 function showJournal(){
+
   document.getElementById("journal-page").style.display = "block";
   document.getElementById("tb-page").style.display = "none";
 }
